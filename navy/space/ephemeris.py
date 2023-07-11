@@ -31,7 +31,6 @@ class BRDCEphemeris():
     omega    : float
     omegaDot : float
     iDot     : float
-    alpha0   : float
     ura      : float
     health   : float
 
@@ -43,44 +42,42 @@ class BRDCEphemeris():
     
     # ----------------------------------------------------------------------------------------------------------------
     
-    def fromXArray(self, xarray:xr.DataArray):
+    def fromXArray(self, xarray:xr.DataArray, toc : float):
 
-        # satelliteID = str(xarray.coords['sv'].values)
-        # iode        = int(xarray['IODE'].values)
-        # iodc        = int(xarray['IODC'].values)
-        # toe         = int(xarray['Toe'].values)
-        # toc         = int(xarray['Toc'].values)
-        # tgd         = float(xarray['TGD'].values)
-        # af2         = float(xarray['SVclockDriftRate'].values)
-        # af1         =
-        # af0         =
-        # ecc         =
-        # sqrtA       =
-        # crs         =
-        # deltan      =
-        # m0          =
-        # cuc         =
-        # cus         =
-        # cic         =
-        # omega0      =
-        # cis         =
-        # i0          =
-        # crc         =
-        # omega       =
-        # omegaDot    =
-        # iDot        =
-        # alpha0      =
-        # ura         =
-        # health      =
-
+        self.satelliteID = str(xarray.coords['sv'].values)
+        self.iode        = int(xarray['IODE'].values)
+        self.iodc        = int(xarray['IODC'].values)
+        self.toe         = int(xarray['Toe'].values)
+        self.toc         = toc
+        self.tgd         = float(xarray['TGD'].values)
+        self.af2         = float(xarray['SVclockDriftRate'].values)
+        self.af1         = float(xarray['SVclockDrift'].values)
+        self.af0         = float(xarray['SVclockBias'].values)
+        self.ecc         = float(xarray['Eccentricity'].values)
+        self.sqrtA       = float(xarray['Eccentricity'].values)
+        self.crs         = float(xarray['Crs'].values)
+        self.deltan      = float(xarray['DeltaN'].values)
+        self.m0          = float(xarray['M0'].values)
+        self.cuc         = float(xarray['Cuc'].values)
+        self.cus         = float(xarray['Cus'].values)
+        self.cic         = float(xarray['Cic'].values)
+        self.omega0      = float(xarray['Omega0'].values)
+        self.cis         = float(xarray['Cis'].values)
+        self.i0          = float(xarray['Io'].values)
+        self.crc         = float(xarray['Crc'].values)
+        self.omega       = float(xarray['omega'].values)
+        self.omegaDot    = float(xarray['OmegaDot'].values)
+        self.iDot        = float(xarray['IDOT'].values)
+        self.ura         = float(xarray['SVacc'].values)
+        self.health      = float(xarray['health'].values)
 
         return
     
     # ----------------------------------------------------------------------------------------------------------------
 
-    def computePosition(self):
+    def computePosition(self, time : float):
 
-                # Compute difference between current time and orbit reference time
+        # Compute difference between current time and orbit reference time
         # Check for week rollover at the same time
         dt = self.timeCheck(time - self.toc)
 
@@ -132,7 +129,7 @@ class BRDCEphemeris():
     
     # -----------------------------------------------------------------------------------------------------------------
 
-    def timeCheck(time):
+    def timeCheck(self, time):
         """ 
         timeCheck accounting for beginning or end of week crossover.
         corrTime = check_t(time);

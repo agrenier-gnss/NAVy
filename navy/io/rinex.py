@@ -1,6 +1,8 @@
 
+import numpy as np
 import georinex 
 import logging
+from gps_time import GPSTime
 from datetime import datetime
 from configparser import ConfigParser
 
@@ -98,11 +100,27 @@ class RINEXNav(NavigationData):
 
     def getSatellitesPositions(self, time, prn:list):
 
+        satpos = np.empty((len(prn), 3))
+        satclock = np.empty(len(prn))
+        i = 0
         for sat in prn:
-            data = self.data.sel(time=time, method='pad', sv=sat)
-            eph = BRDCEphemeris()
-            eph.fromXArray(data)
 
+            # Retrieve ephemeris
+            try:
+                data = self.data.sel(sv=sat).dropna(dim="time", how="any").sel(time=time, method="pad")
+            except:
+                continue
+            
+            toc = GPSTime.from_datetime(datetime.utcfromtimestamp(data.time.values.tolist()/1e9)).seconds
+            eph = BRDCEphemeris()
+            eph.fromXArray(data, toc)
+
+            # Compute positions
+            tow = GPSTime.from_datetime(time).seconds
+            pos, clock = eph.computePosition(tow)
+            satpos[i, :] = pos
+            satclock[i] = clock
+            i += 1
 
         return
     
